@@ -1,7 +1,8 @@
 /*
  * README
- * Yonatan Shaked 208406561
- * Daniel Berin 205738172
+ * https://github.com/YonatanShaked/OOP-Afeka---Final-project.git
+ * Yonatan Shaked
+ * Daniel Berin
  * Final project for OOP class Afeka
 */
 package application;
