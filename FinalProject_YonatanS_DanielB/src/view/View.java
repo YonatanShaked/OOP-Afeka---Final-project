@@ -24,7 +24,7 @@ public class View {
 	private RadioButton rbLvl1;
 	private RadioButton rbLvl2;
 	private RadioButton rbLvl3;
-	private Button leaderboardButton, newGameButton;
+	private Button leaderboardButton, newGameButton, newTeamButton, switchTeamButton;
 	private ToggleGroup tg;
 	private Pane drawPane;
 	private MatrixView theMatrixView;
@@ -55,12 +55,20 @@ public class View {
 		leaderboardButton.setPadding(new Insets(5, 20, 5, 20));
 		leaderboardButton.setTranslateX(10);
 
-		newGameButton = new Button("New Game");
+		newGameButton = new Button("New Player");
 		newGameButton.setPadding(new Insets(5, 20, 5, 20));
 		newGameButton.setTranslateX(10);
+		
+		newTeamButton = new Button("New Team");
+		newTeamButton.setPadding(new Insets(5, 20, 5, 20));
+		newTeamButton.setTranslateX(10);
+		
+		switchTeamButton = new Button("Switch Team");
+		switchTeamButton.setPadding(new Insets(5, 20, 5, 20));
+		switchTeamButton.setTranslateX(10);
 
 		vbLeft = new VBox();
-		vbLeft.getChildren().addAll(newGameButton, rbLvl1, rbLvl2, rbLvl3, leaderboardButton);
+		vbLeft.getChildren().addAll(newGameButton, newTeamButton, switchTeamButton, rbLvl1, rbLvl2, rbLvl3, leaderboardButton);
 		vbLeft.setAlignment(Pos.CENTER_LEFT);
 
 		Text title = new Text("COLORS GAME");
@@ -96,7 +104,7 @@ public class View {
 		bp.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), new CornerRadii(0), Insets.EMPTY)));
 
 		mainScene = new Scene(bp, 950, 700);
-		primaryStage.setTitle("Final Project : Yonatan Shaked & Daniel Berin");
+		primaryStage.setTitle("Final Project DataBases : Yonatan & Guy");
 		primaryStage.getIcons().add(new Image(getClass().getResource("icon.png").toExternalForm()));
 		primaryStage.setScene(mainScene);
 		primaryStage.show();
@@ -190,6 +198,14 @@ public class View {
 
 	public void addNewGameListener(EventHandler<MouseEvent> click) {
 		newGameButton.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
+	}
+	
+	public void addNewTeamListener(EventHandler<MouseEvent> click) {
+		newTeamButton.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
+	}
+	
+	public void addSwitchTeamListener(EventHandler<MouseEvent> click) {
+		switchTeamButton.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
 	}
 
 	public void addToggleChangeListener(ChangeListener<Toggle> cl) {

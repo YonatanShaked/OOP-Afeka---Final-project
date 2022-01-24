@@ -20,6 +20,7 @@ public class Controller {
 	}
 
 	public void start() {
+		//MySqlController.test();
 		EventHandler<MouseEvent> clickOnMatrix = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
@@ -43,6 +44,20 @@ public class Controller {
 				initNewGame(clickOnMatrix);
 			}
 		};
+		
+		EventHandler<MouseEvent> clickOnNewTeam = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				System.out.println("New team");
+			}
+		};
+		
+		EventHandler<MouseEvent> clickOnSwitchTeam = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				System.out.println("Switch team");
+			}
+		};
 
 		ChangeListener<Toggle> toggleChangeListener = new ChangeListener<Toggle>() {
 			@Override
@@ -61,6 +76,8 @@ public class Controller {
 		view.addClickEventToMatrix(clickOnMatrix);
 		view.addLeaderboardListener(clickOnLeaderboard);
 		view.addNewGameListener(clickOnNewGame);
+		view.addNewTeamListener(clickOnNewTeam);
+		view.addSwitchTeamListener(clickOnSwitchTeam);
 		view.setNameText(model.getPlayer().getName());
 		view.addToggleChangeListener(toggleChangeListener);
 		initNewGame(clickOnMatrix);
