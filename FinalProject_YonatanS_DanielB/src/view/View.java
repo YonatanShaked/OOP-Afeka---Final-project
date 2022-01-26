@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import controller.MySqlController;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -26,23 +27,23 @@ public class View {
 	private RadioButton rbLvl1;
 	private RadioButton rbLvl2;
 	private RadioButton rbLvl3;
-	private Button leaderboardButton, newGameButton, newTeamButton, switchTeamButton;
+	private Button leaderboardButton, newGameButton, switchTeamButton;
 	private ToggleGroup tg;
 	private Pane drawPane;
 	private MatrixView theMatrixView;
 	private VBox vbLeft;
-	private Text scoreText, nameText;
+	private Text scoreText, nameText, teamNameText;
 
 	public View(Stage stage) {
 		primaryStage = stage;
 		tg = new ToggleGroup();
-		
+
 		rbLvl1 = new RadioButton("Level 1");
 		rbLvl1.setSelected(true);
 		rbLvl1.setToggleGroup(tg);
 		rbLvl1.setPadding(new Insets(5, 20, 5, 20));
 		rbLvl1.setTextFill(Color.WHITE);
-		
+
 		rbLvl2 = new RadioButton("Level 2");
 		rbLvl2.setToggleGroup(tg);
 		rbLvl2.setPadding(new Insets(5, 20, 5, 20));
@@ -57,20 +58,18 @@ public class View {
 		leaderboardButton.setPadding(new Insets(5, 20, 5, 20));
 		leaderboardButton.setTranslateX(10);
 
-		newGameButton = new Button("New Player");
+		newGameButton = new Button("Switch Player");
 		newGameButton.setPadding(new Insets(5, 20, 5, 20));
+		newGameButton.setTranslateY(-10);
 		newGameButton.setTranslateX(10);
-		
-		newTeamButton = new Button("New Team");
-		newTeamButton.setPadding(new Insets(5, 20, 5, 20));
-		newTeamButton.setTranslateX(10);
-		
+
 		switchTeamButton = new Button("Switch Team");
 		switchTeamButton.setPadding(new Insets(5, 20, 5, 20));
 		switchTeamButton.setTranslateX(10);
 
 		vbLeft = new VBox();
-		vbLeft.getChildren().addAll(newGameButton, newTeamButton, switchTeamButton, rbLvl1, rbLvl2, rbLvl3, leaderboardButton);
+		vbLeft.getChildren().addAll(newGameButton, switchTeamButton, rbLvl1, rbLvl2, rbLvl3,
+				leaderboardButton);
 		vbLeft.setAlignment(Pos.CENTER_LEFT);
 
 		Text title = new Text("COLORS GAME");
@@ -88,10 +87,13 @@ public class View {
 		nameText = new Text("");
 		nameText.setFont(Font.font("ariel", 16));
 		nameText.setFill(Color.WHITE);
+		teamNameText = new Text("");
+		teamNameText.setFont(Font.font("ariel", 16));
+		teamNameText.setFill(Color.WHITE);
 		HBox topRightBox = new HBox();
 		topRightBox.setPadding(new Insets(0, 45, 0, 0));
 		topRightBox.setSpacing(30);
-		topRightBox.getChildren().addAll(nameText, scoreText);
+		topRightBox.getChildren().addAll(teamNameText ,nameText, scoreText);
 		topRightBox.setAlignment(Pos.TOP_RIGHT);
 
 		drawPane = new Pane();
@@ -116,6 +118,10 @@ public class View {
 	public void setNameText(String s) {
 		nameText.setText(s);
 	}
+	
+	public void setTeamNameText(String s) {
+		teamNameText.setText(s);
+	}
 
 	public void setScoreText(int x) {
 		scoreText.setText("Score: " + x);
@@ -133,36 +139,48 @@ public class View {
 	}
 
 	public Player newGameInputDialog() {
+		Player p;
 		TextInputDialog inputDialog = new TextInputDialog("Player Name");
 		inputDialog.getDialogPane().setMinSize(400, 250);
-		inputDialog.setTitle("New game dialog");
-		inputDialog.setHeaderText("Please enter your name:");
+		inputDialog.setTitle("Set player dialog");
+		inputDialog.setHeaderText("Please enter your name (new or existing):");
 		inputDialog.showAndWait();
-		Player p = new Player(inputDialog.getEditor().getText());
+		p = MySqlController.findPlayer(inputDialog.getEditor().getText());
+
+		if (p == null) {
+			String fname = "", lname = "", mname = "";
+			String[] splited = inputDialog.getEditor().getText().split("\\s+");
+			for(int i = 0; i < splited.length; i++) {
+				if (i == 0)
+					fname = splited[i];
+				if (i == 1)
+					lname = splited[i];
+				if (i == 2)
+					mname = splited[i];
+			}
+			int pid = MySqlController.getHighestPid() + 1;
+			Team t = MySqlController.findTeam(1); // no team
+			p = new Player(pid, fname, lname, mname, 0, t);
+			MySqlController.addPlayer(p);
+		}
 		return p;
 	}
-	
-	public Team newTeamInputDialog() {
+
+	public Team setTeamInputDialog() { // goes to player
+		Team t;
 		TextInputDialog inputDialog = new TextInputDialog("Team Name");
 		inputDialog.getDialogPane().setMinSize(400, 250);
-		inputDialog.setTitle("New team dialog");
-		inputDialog.setHeaderText("Please enter your team name:");
-		inputDialog.showAndWait();
-		int tid = 0; // get from sql
-		Team t = new Team(tid, inputDialog.getEditor().getText());
-		System.out.println(t.getTid() + " " + t.getName());
-		return t;
-	}
-	
-	public Team setTeamInputDialog() { // goes to player
-		TextInputDialog inputDialog = new TextInputDialog("Team Name or ID");
-		inputDialog.getDialogPane().setMinSize(400, 250);
 		inputDialog.setTitle("Set team dialog");
-		inputDialog.setHeaderText("Please Choose your team (name or ID):");
+		inputDialog.setHeaderText("Please enter your team name (new or existing):");
 		inputDialog.showAndWait();
-		// Team t = get team from sql
-		int tid = 0; // get from sql
-		Team t = new Team(tid, inputDialog.getEditor().getText());
+		t = MySqlController.findTeam(inputDialog.getEditor().getText());
+		
+		if (t == null) {
+			int tid = MySqlController.getHighestTid() + 1;
+			t = new Team(tid, inputDialog.getEditor().getText(), 0);
+			MySqlController.addTeam(t);
+		}
+		
 		return t;
 	}
 
@@ -179,12 +197,12 @@ public class View {
 		theMatrixView.show(drawPane);
 	}
 
-	public void showLeaderBoard(ArrayList<Player> leaderboard) {
+	public void showLeaderBoard(ArrayList<Player> leaderboard, ArrayList<Team> leaderboardT, Player mvp) {
 		Calendar cal = Calendar.getInstance();
 		BorderPane bpLb = new BorderPane();
 		bpLb.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), new CornerRadii(0), Insets.EMPTY)));
 
-		Text title = new Text("LEADERBOARD\n" + new SimpleDateFormat("MMMMMM").format(cal.getTime()) +"'s League");
+		Text title = new Text("LEADERBOARD\n" + new SimpleDateFormat("MMMMMM").format(cal.getTime()) + "'s League");
 		title.setFont(Font.font("ariel", 24));
 		title.setFill(Color.WHITE);
 		title.setUnderline(true);
@@ -209,7 +227,8 @@ public class View {
 		left.getChildren().add(playerT);
 		int indx = 1;
 		for (Player p : leaderboard) {
-			Text player = new Text(indx + ":  " + p.getName() + "   |   " + p.getScore());
+			String name = p.getFname() + " " + p.getLname() + " " + p.getMname();
+			Text player = new Text(indx + ":  " + name + "   |   " + p.getScore());
 			indx++;
 			player.setFont(Font.font("ariel", 18));
 			player.setFill(Color.WHITE);
@@ -217,7 +236,7 @@ public class View {
 			left.getChildren().add(player);
 		}
 		left.setAlignment(Pos.CENTER_LEFT);
-		
+
 		VBox right = new VBox();
 		Text teamH = new Text("TEAM LEAGUE\n");
 		teamH.setFont(Font.font("ariel", 24));
@@ -225,7 +244,8 @@ public class View {
 		teamH.setUnderline(true);
 		teamH.setTextAlignment(TextAlignment.CENTER);
 		right.getChildren().add(teamH);
-		Text teamMvp = new Text("MVP : " + leaderboard.get(0).getName() +"\n");
+		String mvpName = mvp.getFname() + " " + mvp.getLname() + " " + mvp.getMname();
+		Text teamMvp = new Text("MVP : " + mvpName + "\n");
 		teamMvp.setFont(Font.font("ariel", 16));
 		teamMvp.setFill(Color.WHITE);
 		teamMvp.setTextAlignment(TextAlignment.CENTER);
@@ -237,25 +257,25 @@ public class View {
 		teamT.setTextAlignment(TextAlignment.CENTER);
 		right.getChildren().add(teamT);
 		indx = 1;
-		for (Player p : leaderboard) { // temp
-			Text player = new Text(indx + ":  " + p.getName() + "   |   " + p.getScore());
+		for (Team t : leaderboardT) { // temp
+			Text team = new Text(indx + ":  " + t.getName() + "   |   " + t.getScore());
 			indx++;
-			player.setFont(Font.font("ariel", 18));
-			player.setFill(Color.WHITE);
-			player.setTextAlignment(TextAlignment.CENTER);
-			right.getChildren().add(player);
+			team.setFont(Font.font("ariel", 18));
+			team.setFill(Color.WHITE);
+			team.setTextAlignment(TextAlignment.CENTER);
+			right.getChildren().add(team);
 		}
 		right.setAlignment(Pos.CENTER_RIGHT);
 
 		bpLb.setTop(topBox);
 		bpLb.setLeft(left);
 		bpLb.setRight(right);
-		left.setTranslateX(100);
-		right.setTranslateX(-100);
+		left.setTranslateX(50);
+		right.setTranslateX(-50);
 		Stage stage = new Stage();
 		stage.setTitle("Leaderboard " + new SimpleDateFormat("MMMMMM").format(cal.getTime()));
 		stage.setResizable(false);
-		stage.setScene(new Scene(bpLb, 750, 550));
+		stage.setScene(new Scene(bpLb, 800, 550));
 		stage.show();
 	}
 
@@ -266,11 +286,7 @@ public class View {
 	public void addNewGameListener(EventHandler<MouseEvent> click) {
 		newGameButton.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
 	}
-	
-	public void addNewTeamListener(EventHandler<MouseEvent> click) {
-		newTeamButton.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
-	}
-	
+
 	public void addSwitchTeamListener(EventHandler<MouseEvent> click) {
 		switchTeamButton.addEventHandler(MouseEvent.MOUSE_CLICKED, click);
 	}

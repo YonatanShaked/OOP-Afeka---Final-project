@@ -1,19 +1,16 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class Team implements Comparable<Team>{
 	private int tid;
 	private String name;
 	private int score;
-	private ArrayList<Player> players;
 	
-	public Team(int tid, String name) {
+	public Team(int tid, String name, int score) {
 		this.tid = tid;
 		this.name = name;
-		this.score = 0;
-		this.players = new ArrayList<>();
+		this.score = score;
 	}
 	
 	public int getTid() {
@@ -28,8 +25,8 @@ public class Team implements Comparable<Team>{
 		return score;
 	}
 	
-	public ArrayList<Player> getPlayers() {
-		return players;
+	public void setScore(int score) {
+		this.score = score;
 	}
 
 	@Override

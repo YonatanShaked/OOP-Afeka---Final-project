@@ -5,18 +5,23 @@ import java.util.Collections;
 import java.util.Random;
 
 import controller.CtrlFileHandler;
+import controller.MySqlController;
 import model.MatrixElement.eElementColor;
 
 public class Matrix {
+	private Model model;
 	private Player player;
 	private ArrayList<Player> leaderboard;
+	private ArrayList<Team> leaderboardT;
 	private int level;
 	private ArrayList<ArrayList<MatrixElement>> theMatrix;
 
-	public Matrix(int level, Player player, ArrayList<Player> leaderboard) {
+	public Matrix(int level, Player player, ArrayList<Player> leaderboard, ArrayList<Team> leaderboardT, Model model) {
 		this.player = player;
 		this.leaderboard = leaderboard;
+		this.leaderboardT = leaderboardT;
 		this.level = level;
+		this.model = model;
 		theMatrix = new ArrayList<ArrayList<MatrixElement>>();
 		Random rnd = new Random();
 		
@@ -148,22 +153,42 @@ public class Matrix {
 	private void saveToFile() {
 		boolean canAdd = true;
 		for (Player p : leaderboard) {
-			if (p.getName().equals(player.getName())) {
+			if (p.getPid() == player.getPid()) {
+				System.out.println("hii");
 				canAdd = false;
-				if (player.getScore() > p.getScore())
+				if (player.getScore() > p.getScore()) {
 					p.setScore(player.getScore());
+					MySqlController.setPlayerScore(p);
+				}
 			}
 		}
 
 		if (canAdd)
 			leaderboard.add(player);
 
-		Collections.sort(leaderboard, Collections.reverseOrder());
-
 		if (leaderboard.size() > 10)
 			leaderboard.subList(10, leaderboard.size()).clear();
 		
-		CtrlFileHandler.saveFile(leaderboard);
+		canAdd = true;
+		for (Team t : leaderboardT) {
+			if (t.getTid() == player.getTeam().getTid()) {
+				canAdd = false;
+				if (player.getTeam().getScore() > t.getScore()) {
+					t.setScore(player.getTeam().getScore());
+					MySqlController.setTeamScore(t);
+				}
+			}
+		}
+
+		if (canAdd)
+			leaderboardT.add(player.getTeam());
+
+		if (leaderboardT.size() > 10)
+			leaderboardT.subList(10, leaderboardT.size()).clear();
+		
+		model.setLeaderBoard(controller.MySqlController.getTopPlayers());
+		model.setLeaderBoardT(controller.MySqlController.getTopTeams());
+		model.setMvp(controller.MySqlController.findMvp());
 	}
 
 	private void resetMatrix() {

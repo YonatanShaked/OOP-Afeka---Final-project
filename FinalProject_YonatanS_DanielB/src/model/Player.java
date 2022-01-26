@@ -10,13 +10,19 @@ public class Player implements Comparable<Player> {
 	private String fname, lname, mname;
 	private int score;
 	
-	public Player(int pid, String fname, String lname, String mname, Team team) {
+	public Player(int pid, String fname, String lname, String mname, int score, Team team) {
 		this.pid = pid;
 		this.fname = fname;
 		this.lname = lname;
 		this.mname = mname;
-		this.score = 0;
+		this.score = score;
 		this.team = team;
+		
+		if (this.mname == null)
+			this.mname = "";
+		
+		if (this.lname == null)
+			this.lname = "";
 	}
 
 	public Player(String name) {
