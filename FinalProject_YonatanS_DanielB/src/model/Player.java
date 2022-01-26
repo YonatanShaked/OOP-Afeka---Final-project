@@ -4,18 +4,19 @@ import java.util.Objects;
 
 public class Player implements Comparable<Player> {
 
-	private int pid, tid;
+	private int pid;
+	private Team team;
 	private String name;
 	private String fname, lname, mname;
 	private int score;
 	
-	public Player(int pid, String fname, String lname, String mname, int tid) {
+	public Player(int pid, String fname, String lname, String mname, Team team) {
 		this.pid = pid;
 		this.fname = fname;
 		this.lname = lname;
 		this.mname = mname;
 		this.score = 0;
-		this.tid = tid;
+		this.team = team;
 	}
 
 	public Player(String name) {
@@ -27,8 +28,12 @@ public class Player implements Comparable<Player> {
 		return pid;
 	}
 	
-	public int getTid()	{
-		return tid;
+	public Team getTeam()	{
+		return team;
+	}
+	
+	public void setTeam(Team team) {
+		this.team = team;
 	}
 	
 	public String getFname() {

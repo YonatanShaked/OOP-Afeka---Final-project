@@ -5,7 +5,9 @@ import model.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
@@ -131,13 +133,37 @@ public class View {
 	}
 
 	public Player newGameInputDialog() {
-		TextInputDialog tid = new TextInputDialog("Player Name");
-		tid.getDialogPane().setMinSize(400, 250);
-		tid.setTitle("New game dialog");
-		tid.setHeaderText("Please enter your name:");
-		tid.showAndWait();
-		Player p = new Player(tid.getEditor().getText());
+		TextInputDialog inputDialog = new TextInputDialog("Player Name");
+		inputDialog.getDialogPane().setMinSize(400, 250);
+		inputDialog.setTitle("New game dialog");
+		inputDialog.setHeaderText("Please enter your name:");
+		inputDialog.showAndWait();
+		Player p = new Player(inputDialog.getEditor().getText());
 		return p;
+	}
+	
+	public Team newTeamInputDialog() {
+		TextInputDialog inputDialog = new TextInputDialog("Team Name");
+		inputDialog.getDialogPane().setMinSize(400, 250);
+		inputDialog.setTitle("New team dialog");
+		inputDialog.setHeaderText("Please enter your team name:");
+		inputDialog.showAndWait();
+		int tid = 0; // get from sql
+		Team t = new Team(tid, inputDialog.getEditor().getText());
+		System.out.println(t.getTid() + " " + t.getName());
+		return t;
+	}
+	
+	public Team setTeamInputDialog() { // goes to player
+		TextInputDialog inputDialog = new TextInputDialog("Team Name or ID");
+		inputDialog.getDialogPane().setMinSize(400, 250);
+		inputDialog.setTitle("Set team dialog");
+		inputDialog.setHeaderText("Please Choose your team (name or ID):");
+		inputDialog.showAndWait();
+		// Team t = get team from sql
+		int tid = 0; // get from sql
+		Team t = new Team(tid, inputDialog.getEditor().getText());
+		return t;
 	}
 
 	public void update(Matrix theMatrix) {
@@ -154,23 +180,32 @@ public class View {
 	}
 
 	public void showLeaderBoard(ArrayList<Player> leaderboard) {
+		Calendar cal = Calendar.getInstance();
 		BorderPane bpLb = new BorderPane();
 		bpLb.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), new CornerRadii(0), Insets.EMPTY)));
 
-		Text title = new Text("LEADERBOARD");
+		Text title = new Text("LEADERBOARD\n" + new SimpleDateFormat("MMMMMM").format(cal.getTime()) +"'s League");
 		title.setFont(Font.font("ariel", 24));
 		title.setFill(Color.WHITE);
 		title.setUnderline(true);
+		title.setTextAlignment(TextAlignment.CENTER);
 		HBox topBox = new HBox();
 		topBox.setPadding(new Insets(15, 0, 15, 0));
-		topBox.getChildren().add(title);
+		topBox.getChildren().addAll(title);
 		topBox.setAlignment(Pos.CENTER);
 
 		VBox left = new VBox();
-		Text playerT = new Text(" Name   :   Score ");
+		Text playerH = new Text("SINGLE LEAGUE\n\n");
+		playerH.setFont(Font.font("ariel", 24));
+		playerH.setFill(Color.WHITE);
+		playerH.setUnderline(true);
+		playerH.setTextAlignment(TextAlignment.CENTER);
+		left.getChildren().add(playerH);
+		Text playerT = new Text(" Name   :   Score");
 		playerT.setFont(Font.font("ariel", 20));
 		playerT.setFill(Color.WHITE);
 		playerT.setUnderline(true);
+		playerT.setTextAlignment(TextAlignment.CENTER);
 		left.getChildren().add(playerT);
 		int indx = 1;
 		for (Player p : leaderboard) {
@@ -178,17 +213,49 @@ public class View {
 			indx++;
 			player.setFont(Font.font("ariel", 18));
 			player.setFill(Color.WHITE);
+			player.setTextAlignment(TextAlignment.CENTER);
 			left.getChildren().add(player);
 		}
 		left.setAlignment(Pos.CENTER_LEFT);
+		
+		VBox right = new VBox();
+		Text teamH = new Text("TEAM LEAGUE\n");
+		teamH.setFont(Font.font("ariel", 24));
+		teamH.setFill(Color.WHITE);
+		teamH.setUnderline(true);
+		teamH.setTextAlignment(TextAlignment.CENTER);
+		right.getChildren().add(teamH);
+		Text teamMvp = new Text("MVP : " + leaderboard.get(0).getName() +"\n");
+		teamMvp.setFont(Font.font("ariel", 16));
+		teamMvp.setFill(Color.WHITE);
+		teamMvp.setTextAlignment(TextAlignment.CENTER);
+		right.getChildren().add(teamMvp);
+		Text teamT = new Text(" Name   :   Score ");
+		teamT.setFont(Font.font("ariel", 20));
+		teamT.setFill(Color.WHITE);
+		teamT.setUnderline(true);
+		teamT.setTextAlignment(TextAlignment.CENTER);
+		right.getChildren().add(teamT);
+		indx = 1;
+		for (Player p : leaderboard) { // temp
+			Text player = new Text(indx + ":  " + p.getName() + "   |   " + p.getScore());
+			indx++;
+			player.setFont(Font.font("ariel", 18));
+			player.setFill(Color.WHITE);
+			player.setTextAlignment(TextAlignment.CENTER);
+			right.getChildren().add(player);
+		}
+		right.setAlignment(Pos.CENTER_RIGHT);
 
 		bpLb.setTop(topBox);
 		bpLb.setLeft(left);
-		left.setTranslateX(150);
+		bpLb.setRight(right);
+		left.setTranslateX(100);
+		right.setTranslateX(-100);
 		Stage stage = new Stage();
-		stage.setTitle("Leaderboard");
+		stage.setTitle("Leaderboard " + new SimpleDateFormat("MMMMMM").format(cal.getTime()));
 		stage.setResizable(false);
-		stage.setScene(new Scene(bpLb, 450, 450));
+		stage.setScene(new Scene(bpLb, 750, 550));
 		stage.show();
 	}
 

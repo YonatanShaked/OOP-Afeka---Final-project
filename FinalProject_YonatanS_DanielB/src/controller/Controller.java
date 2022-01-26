@@ -48,14 +48,15 @@ public class Controller {
 		EventHandler<MouseEvent> clickOnNewTeam = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				System.out.println("New team");
+				view.newTeamInputDialog(); // returns new team
 			}
 		};
 		
 		EventHandler<MouseEvent> clickOnSwitchTeam = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				System.out.println("Switch team");
+				model.getPlayer().setTeam(view.setTeamInputDialog());
+				System.out.println(model.getPlayer().getTeam().getName());
 			}
 		};
 

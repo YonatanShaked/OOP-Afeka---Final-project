@@ -6,17 +6,17 @@ import java.util.Date;
 public class TeamLeague extends League {
 	
 	private Player mvp;
-	private ArrayList<Integer> tidList;
+	private ArrayList<Team> teams;
 
 	public TeamLeague(int lid, Date sDate, Date eDate) {
 		super(lid, sDate, eDate);
-		tidList = new ArrayList<Integer>();
+		this.teams = new ArrayList<>();
 		mvp = null;
 	}
 	
-	public TeamLeague(int lid, Date sDate, Date eDate, ArrayList<Integer> tidList, Player mvp) {
+	public TeamLeague(int lid, Date sDate, Date eDate, ArrayList<Team> teams, Player mvp) {
 		super(lid, sDate, eDate);
-		this.tidList = tidList;
+		this.teams = teams;
 		this.mvp = mvp;
 	}
 	
@@ -28,8 +28,8 @@ public class TeamLeague extends League {
 		this.mvp = mvp;
 	}
 	
-	public ArrayList<Integer> getTidList() {
-		return tidList;
+	public ArrayList<Team> getTeams() {
+		return teams;
 	}
 
 }
