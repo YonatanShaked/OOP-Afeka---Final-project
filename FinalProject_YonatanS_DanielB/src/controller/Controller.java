@@ -20,6 +20,7 @@ public class Controller {
 	}
 
 	public void start() {
+		//MySqlController.test();
 		EventHandler<MouseEvent> clickOnMatrix = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
@@ -33,7 +34,7 @@ public class Controller {
 		EventHandler<MouseEvent> clickOnLeaderboard = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				view.showLeaderBoard(model.getLeaderboard());
+				view.showLeaderBoard(model.getLeaderboard(), model.getLeaderboardT(), model.getMvp(), model.getSingleLeague(), model.getTeamLeague());
 			}
 		};
 
@@ -41,6 +42,18 @@ public class Controller {
 			@Override
 			public void handle(MouseEvent event) {
 				initNewGame(clickOnMatrix);
+			}
+		};
+		
+		EventHandler<MouseEvent> clickOnSwitchTeam = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				model.getPlayer().setTeam(view.setTeamInputDialog());
+				MySqlController.setPlayerToTeam(model.getPlayer(), model.getPlayer().getTeam());
+				model.setLeaderBoard(controller.MySqlController.getTopPlayers());
+				model.setLeaderBoardT(controller.MySqlController.getTopTeams());
+				model.setMvp(controller.MySqlController.findMvp());
+				view.setTeamNameText(model.getPlayer().getTeam().getName());
 			}
 		};
 
@@ -51,8 +64,8 @@ public class Controller {
 				model.update(kindOfLevel);
 				view.update(model.getMatrix());
 				view.addClickEventToMatrix(clickOnMatrix);
-				String s = model.getPlayer().getName();
-				model.setPlayer(new Player(s));
+				//String s = model.getPlayer().getName();
+				//model.setPlayer(new Player(s));
 				view.setScoreText(model.getPlayer().getScore());
 			}
 		};
@@ -61,6 +74,7 @@ public class Controller {
 		view.addClickEventToMatrix(clickOnMatrix);
 		view.addLeaderboardListener(clickOnLeaderboard);
 		view.addNewGameListener(clickOnNewGame);
+		view.addSwitchTeamListener(clickOnSwitchTeam);
 		view.setNameText(model.getPlayer().getName());
 		view.addToggleChangeListener(toggleChangeListener);
 		initNewGame(clickOnMatrix);
@@ -69,9 +83,13 @@ public class Controller {
 	private void initNewGame(EventHandler<MouseEvent> clickOnMatrix) {
 		Player p = view.newGameInputDialog();
 		model.setPlayer(p);
-		view.setNameText(p.getName());
+		view.setTeamNameText(p.getTeam().getName());
+		view.setNameText(p.getFname() + " " + p.getLname() + " " + p.getMname());
 		view.setScoreText(p.getScore());
 		String kindOfLevel = view.getKindOfLevel();
+		model.setLeaderBoard(controller.MySqlController.getTopPlayers());
+		model.setLeaderBoardT(controller.MySqlController.getTopTeams());
+		model.setMvp(controller.MySqlController.findMvp());
 		model.update(kindOfLevel);
 		view.update(model.getMatrix());
 		view.addClickEventToMatrix(clickOnMatrix);

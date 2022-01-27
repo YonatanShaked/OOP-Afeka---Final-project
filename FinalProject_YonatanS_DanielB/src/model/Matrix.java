@@ -1,22 +1,20 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
-
-import controller.CtrlFileHandler;
+import controller.MySqlController;
 import model.MatrixElement.eElementColor;
 
 public class Matrix {
+	private Model model;
 	private Player player;
-	private ArrayList<Player> leaderboard;
 	private int level;
 	private ArrayList<ArrayList<MatrixElement>> theMatrix;
 
-	public Matrix(int level, Player player, ArrayList<Player> leaderboard) {
+	public Matrix(int level, Player player, Model model) {
 		this.player = player;
-		this.leaderboard = leaderboard;
 		this.level = level;
+		this.model = model;
 		theMatrix = new ArrayList<ArrayList<MatrixElement>>();
 		Random rnd = new Random();
 		
@@ -142,29 +140,46 @@ public class Matrix {
 				}
 			}
 		}
-		saveToFile();
+		MySqlController.setPlayerScore(player);
+		MySqlController.setTeamScore(player.getTeam());
+		model.setLeaderBoard(controller.MySqlController.getTopPlayers());
+		model.setLeaderBoardT(controller.MySqlController.getTopTeams());
+		model.setMvp(controller.MySqlController.findMvp());
+		//saveToFile();
 	}
 
-	private void saveToFile() {
+	/*private void saveToFile() {
 		boolean canAdd = true;
 		for (Player p : leaderboard) {
-			if (p.getName().equals(player.getName())) {
+			if (p.getPid() == player.getPid()) {
+				System.out.println("hii");
 				canAdd = false;
-				if (player.getScore() > p.getScore())
+				if (player.getScore() > p.getScore()) {
 					p.setScore(player.getScore());
+				}
+			}
+		}
+
+		if (canAdd) {
+			leaderboard.add(player);
+		}
+		
+		canAdd = true;
+		for (Team t : leaderboardT) {
+			if (t.getTid() == player.getTeam().getTid()) {
+				canAdd = false;
+				if (player.getTeam().getScore() > t.getScore()) {
+					t.setScore(player.getTeam().getScore());
+				}
 			}
 		}
 
 		if (canAdd)
-			leaderboard.add(player);
+			leaderboardT.add(player.getTeam());
 
-		Collections.sort(leaderboard, Collections.reverseOrder());
-
-		if (leaderboard.size() > 10)
-			leaderboard.subList(10, leaderboard.size()).clear();
-		
-		CtrlFileHandler.saveFile(leaderboard);
-	}
+		if (leaderboardT.size() > 10)
+			leaderboardT.subList(10, leaderboardT.size()).clear();
+	}*/
 
 	private void resetMatrix() {
 		for (int i = 0; i < theMatrix.size(); i++) {
