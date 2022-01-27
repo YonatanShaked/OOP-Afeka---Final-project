@@ -1,25 +1,18 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
-
-import controller.CtrlFileHandler;
 import controller.MySqlController;
 import model.MatrixElement.eElementColor;
 
 public class Matrix {
 	private Model model;
 	private Player player;
-	private ArrayList<Player> leaderboard;
-	private ArrayList<Team> leaderboardT;
 	private int level;
 	private ArrayList<ArrayList<MatrixElement>> theMatrix;
 
-	public Matrix(int level, Player player, ArrayList<Player> leaderboard, ArrayList<Team> leaderboardT, Model model) {
+	public Matrix(int level, Player player, Model model) {
 		this.player = player;
-		this.leaderboard = leaderboard;
-		this.leaderboardT = leaderboardT;
 		this.level = level;
 		this.model = model;
 		theMatrix = new ArrayList<ArrayList<MatrixElement>>();
@@ -147,10 +140,15 @@ public class Matrix {
 				}
 			}
 		}
-		saveToFile();
+		MySqlController.setPlayerScore(player);
+		MySqlController.setTeamScore(player.getTeam());
+		model.setLeaderBoard(controller.MySqlController.getTopPlayers());
+		model.setLeaderBoardT(controller.MySqlController.getTopTeams());
+		model.setMvp(controller.MySqlController.findMvp());
+		//saveToFile();
 	}
 
-	private void saveToFile() {
+	/*private void saveToFile() {
 		boolean canAdd = true;
 		for (Player p : leaderboard) {
 			if (p.getPid() == player.getPid()) {
@@ -158,16 +156,13 @@ public class Matrix {
 				canAdd = false;
 				if (player.getScore() > p.getScore()) {
 					p.setScore(player.getScore());
-					MySqlController.setPlayerScore(p);
 				}
 			}
 		}
 
-		if (canAdd)
+		if (canAdd) {
 			leaderboard.add(player);
-
-		if (leaderboard.size() > 10)
-			leaderboard.subList(10, leaderboard.size()).clear();
+		}
 		
 		canAdd = true;
 		for (Team t : leaderboardT) {
@@ -175,7 +170,6 @@ public class Matrix {
 				canAdd = false;
 				if (player.getTeam().getScore() > t.getScore()) {
 					t.setScore(player.getTeam().getScore());
-					MySqlController.setTeamScore(t);
 				}
 			}
 		}
@@ -185,11 +179,7 @@ public class Matrix {
 
 		if (leaderboardT.size() > 10)
 			leaderboardT.subList(10, leaderboardT.size()).clear();
-		
-		model.setLeaderBoard(controller.MySqlController.getTopPlayers());
-		model.setLeaderBoardT(controller.MySqlController.getTopTeams());
-		model.setMvp(controller.MySqlController.findMvp());
-	}
+	}*/
 
 	private void resetMatrix() {
 		for (int i = 0; i < theMatrix.size(); i++) {

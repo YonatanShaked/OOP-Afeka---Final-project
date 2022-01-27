@@ -34,7 +34,7 @@ public class Controller {
 		EventHandler<MouseEvent> clickOnLeaderboard = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				view.showLeaderBoard(model.getLeaderboard(), model.getLeaderboardT(), model.getMvp());
+				view.showLeaderBoard(model.getLeaderboard(), model.getLeaderboardT(), model.getMvp(), model.getSingleLeague(), model.getTeamLeague());
 			}
 		};
 
@@ -64,8 +64,8 @@ public class Controller {
 				model.update(kindOfLevel);
 				view.update(model.getMatrix());
 				view.addClickEventToMatrix(clickOnMatrix);
-				String s = model.getPlayer().getName();
-				model.setPlayer(new Player(s));
+				//String s = model.getPlayer().getName();
+				//model.setPlayer(new Player(s));
 				view.setScoreText(model.getPlayer().getScore());
 			}
 		};

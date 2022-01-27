@@ -8,7 +8,7 @@ public class TeamLeague extends League {
 	private Player mvp;
 	private ArrayList<Team> teams;
 
-	public TeamLeague(int lid, Date sDate, Date eDate) {
+	public TeamLeague(int lid, Date sDate, Date eDate, Player mvp) {
 		super(lid, sDate, eDate);
 		this.teams = new ArrayList<>();
 		mvp = null;

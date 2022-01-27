@@ -7,7 +7,6 @@ import javafx.scene.paint.Color;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import controller.MySqlController;
 import javafx.beans.value.ChangeListener;
@@ -91,8 +90,8 @@ public class View {
 		teamNameText.setFont(Font.font("ariel", 16));
 		teamNameText.setFill(Color.WHITE);
 		HBox topRightBox = new HBox();
-		topRightBox.setPadding(new Insets(0, 45, 0, 0));
-		topRightBox.setSpacing(30);
+		topRightBox.setPadding(new Insets(0, 25, 0, 0));
+		topRightBox.setSpacing(10);
 		topRightBox.getChildren().addAll(teamNameText ,nameText, scoreText);
 		topRightBox.setAlignment(Pos.TOP_RIGHT);
 
@@ -102,8 +101,8 @@ public class View {
 		bp.setTop(topBox);
 		bp.setRight(topRightBox);
 		Group appContent = new Group();
-		appContent.getChildren().add(drawPane);
-		appContent.setTranslateX(30);
+		appContent.getChildren().add(drawPane);	
+		appContent.setTranslateX(50);		
 		bp.setCenter(appContent);
 		bp.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), new CornerRadii(0), Insets.EMPTY)));
 
@@ -197,12 +196,11 @@ public class View {
 		theMatrixView.show(drawPane);
 	}
 
-	public void showLeaderBoard(ArrayList<Player> leaderboard, ArrayList<Team> leaderboardT, Player mvp) {
-		Calendar cal = Calendar.getInstance();
+	public void showLeaderBoard(ArrayList<Player> leaderboard, ArrayList<Team> leaderboardT, Player mvp, SingleLeague sl, TeamLeague tl) {
 		BorderPane bpLb = new BorderPane();
 		bpLb.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), new CornerRadii(0), Insets.EMPTY)));
-
-		Text title = new Text("LEADERBOARD\n" + new SimpleDateFormat("MMMMMM").format(cal.getTime()) + "'s League");
+		
+		Text title = new Text("LEADERBOARD\n" + new SimpleDateFormat("MMMMMM").format(sl.getSdate()) + "'s League");
 		title.setFont(Font.font("ariel", 24));
 		title.setFill(Color.WHITE);
 		title.setUnderline(true);
@@ -213,7 +211,7 @@ public class View {
 		topBox.setAlignment(Pos.CENTER);
 
 		VBox left = new VBox();
-		Text playerH = new Text("SINGLE LEAGUE\n\n");
+		Text playerH = new Text("SINGLE LEAGUE\n" + new SimpleDateFormat("MMMMMM dd").format(sl.getSdate()) + "-" + new SimpleDateFormat("dd").format(sl.getEdate()) +"\n");
 		playerH.setFont(Font.font("ariel", 24));
 		playerH.setFill(Color.WHITE);
 		playerH.setUnderline(true);
@@ -238,7 +236,7 @@ public class View {
 		left.setAlignment(Pos.CENTER_LEFT);
 
 		VBox right = new VBox();
-		Text teamH = new Text("TEAM LEAGUE\n");
+		Text teamH = new Text("TEAM LEAGUE\n" + new SimpleDateFormat("MMMMMM dd").format(tl.getSdate()) + "-" + new SimpleDateFormat("dd").format(tl.getEdate()) + "\n");
 		teamH.setFont(Font.font("ariel", 24));
 		teamH.setFill(Color.WHITE);
 		teamH.setUnderline(true);
@@ -273,9 +271,9 @@ public class View {
 		left.setTranslateX(50);
 		right.setTranslateX(-50);
 		Stage stage = new Stage();
-		stage.setTitle("Leaderboard " + new SimpleDateFormat("MMMMMM").format(cal.getTime()));
+		stage.setTitle("Leaderboard " + new SimpleDateFormat("MMMMMM").format(sl.getSdate()));
 		stage.setResizable(false);
-		stage.setScene(new Scene(bpLb, 800, 550));
+		stage.setScene(new Scene(bpLb, 800, 600));
 		stage.show();
 	}
 

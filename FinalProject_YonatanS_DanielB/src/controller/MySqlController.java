@@ -13,7 +13,7 @@ public class MySqlController {
 	private static final String className = "com.mysql.cj.jdbc.Driver";
 	private static final String dbUrl = "jdbc:mysql://localhost/final_project_color_game";
 	private static final String user = "root";
-	private static final String pass = "112234";
+	private static final String pass = "PASSWORD";
 
 	public static void addPlayer(Player p) {
 		Connection conn = null;
@@ -26,10 +26,11 @@ public class MySqlController {
 			String mName = p.getMname();
 			int score = p.getScore();
 			int tid = p.getTeam().getTid();
-			Statement stmt = conn.createStatement();
+			
 			String s = " INSERT INTO player (Fname,Lname,Mname,Pscore,TID) VALUES ('" + fName + "','" + lName
 					+ "','" + mName + "'," + score + "," + tid + ")";
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 
 			conn.close();
@@ -48,9 +49,10 @@ public class MySqlController {
 
 			String name = t.getName();
 			int score = t.getScore();
-			Statement stmt = conn.createStatement();
+			
 			String s = " INSERT INTO team (Tname,Tscore) VALUES ('" + name + "'," +  score + ")";
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 
 			conn.close();
@@ -67,9 +69,9 @@ public class MySqlController {
 			Class.forName(className);
 			conn = DriverManager.getConnection(dbUrl, user, pass);
 			
-			Statement stmt = conn.createStatement();
 			String s = "DELETE FROM player WHERE PID =" + p.getPid();
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 
 			conn.close();
@@ -86,9 +88,9 @@ public class MySqlController {
 			Class.forName(className);
 			conn = DriverManager.getConnection(dbUrl, user, pass);
 			
-			Statement stmt = conn.createStatement();
 			String s = "DELETE FROM team WHERE TID =" + t.getTid();
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 
 			conn.close();
@@ -107,9 +109,10 @@ public class MySqlController {
 			
 			int pid = p.getPid();
 			int tid = t.getTid();
-			Statement stmt = conn.createStatement();
+			
 			String s = "UPDATE player set TID = " + tid +" where PID = "+ pid;
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 
 			conn.close();
@@ -118,6 +121,73 @@ public class MySqlController {
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public static SingleLeague getSingleLeague() {
+		SingleLeague l = null;
+		Connection conn = null;
+		try {
+			Class.forName(className);
+			conn = DriverManager.getConnection(dbUrl, user, pass);
+
+			int lid = 0;
+			Date sDate;
+			Date eDate;
+			
+			PreparedStatement p_stmt = conn.prepareStatement("select * from league order by sdate desc limit 2");
+			ResultSet p_rs = p_stmt.executeQuery();
+
+			while (p_rs.next()) {
+				lid = p_rs.getInt("LID");
+				sDate = p_rs.getDate("Sdate");
+				eDate = p_rs.getDate("Edate");
+				if (lid % 2 == 1 ) {
+					ArrayList<Player> players = getAllPlayers();
+					l = new SingleLeague(lid, sDate, eDate, players);
+				}
+			}
+
+			conn.close();
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+		return l;
+	}
+	
+	public static TeamLeague getTeamLeague() {
+		TeamLeague l = null;
+		Connection conn = null;
+		try {
+			Class.forName(className);
+			conn = DriverManager.getConnection(dbUrl, user, pass);
+
+			int lid = 0;
+			Date sDate;
+			Date eDate;
+			
+			PreparedStatement p_stmt = conn.prepareStatement("select * from league order by sdate desc limit 2");
+			ResultSet p_rs = p_stmt.executeQuery();
+
+			while (p_rs.next()) {
+				lid = p_rs.getInt("LID");
+				sDate = p_rs.getDate("Sdate");
+				eDate = p_rs.getDate("Edate");
+				if (lid % 2 == 0 ) {
+					ArrayList<Team> teams = getAllTeams();
+					Player mvp = findMvp();
+					l = new TeamLeague(lid, sDate, eDate, teams, mvp);
+				}
+			}
+
+			conn.close();
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+		return l;
 	}
 
 	public static void addSingleLeague(SingleLeague l) {
@@ -129,14 +199,15 @@ public class MySqlController {
 			String sDate = l.getSdate().toString();
 			String eDate = l.getEdate().toString();
 			int lid = l.getLid();
-			Statement stmt = conn.createStatement();
+			
 			String s = "INSERT INTO league VALUES ('" + sDate + "','" + eDate + "')";
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 			
-			Statement stmt2 = conn.createStatement();
 			String ss = "insert into singleleague values (" + lid +")";
-			int numAffectedRowss = stmt2.executeUpdate(ss);
+			PreparedStatement p_stmt2 = conn.prepareStatement(ss);
+			int numAffectedRowss = p_stmt2.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRowss);
 
 			conn.close();
@@ -157,14 +228,15 @@ public class MySqlController {
 			String eDate = l.getEdate().toString();
 			int lid = l.getLid();
 			int mvp_id = l.getMvp().getPid();
-			Statement stmt = conn.createStatement();
+			
 			String s = "INSERT INTO league VALUES ('" + sDate + "','" + eDate + "')";
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 			
-			Statement stmt2 = conn.createStatement();
 			String ss = "insert into teamleague values (" + mvp_id + "," + lid + ")";
-			int numAffectedRowss = stmt2.executeUpdate(ss);
+			PreparedStatement p_stmt2 = conn.prepareStatement(ss);
+			int numAffectedRowss = p_stmt2.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRowss);
 
 			conn.close();
@@ -183,9 +255,10 @@ public class MySqlController {
 			
 			int pid = p.getPid();
 			int score = p.getScore();
-			Statement stmt = conn.createStatement();
+
 			String s = "UPDATE player set Pscore = " + score +" where PID = "+ pid;
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 
 			conn.close();
@@ -203,9 +276,10 @@ public class MySqlController {
 			conn = DriverManager.getConnection(dbUrl, user, pass);
 			
 			int tid = t.getTid();
-			Statement stmt = conn.createStatement();
+
 			String s = "UPDATE team set Tscore = (Select avg(Pscore) from player where TID = " + tid + ") WHERE TID = " + tid;
-			int numAffectedRows = stmt.executeUpdate(s);
+			PreparedStatement p_stmt = conn.prepareStatement(s);
+			int numAffectedRows = p_stmt.executeUpdate();
 			System.out.println("number of affected rows = " + numAffectedRows);
 
 			conn.close();
@@ -224,6 +298,32 @@ public class MySqlController {
 			conn = DriverManager.getConnection(dbUrl, user, pass);
 
 			PreparedStatement p_stmt = conn.prepareStatement("select * from player order by Pscore desc limit 10");
+			ResultSet p_rs = p_stmt.executeQuery();
+
+			while (p_rs.next()) {
+				Team t = findTeam(p_rs.getInt("TID"));
+				Player p = new Player(p_rs.getInt("PID"), p_rs.getString("Fname"), p_rs.getString("Lname"),
+						p_rs.getString("Mname"), p_rs.getInt("Pscore"), t);
+				players.add(p);
+			}
+
+			conn.close();
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+		return players;
+	}
+	
+	public static ArrayList<Player> getAllPlayers() {
+		ArrayList<Player> players = new ArrayList<>();
+		Connection conn = null;
+		try {
+			Class.forName(className);
+			conn = DriverManager.getConnection(dbUrl, user, pass);
+
+			PreparedStatement p_stmt = conn.prepareStatement("select * from player order by Pscore desc");
 			ResultSet p_rs = p_stmt.executeQuery();
 
 			while (p_rs.next()) {
@@ -286,6 +386,31 @@ public class MySqlController {
 			ex.printStackTrace();
 		}
 		return tid;
+	}
+	
+	public static ArrayList<Team> getAllTeams() {
+		ArrayList<Team> teams = new ArrayList<>();
+		Connection conn = null;
+		try {
+			Class.forName(className);
+			conn = DriverManager.getConnection(dbUrl, user, pass);
+
+			PreparedStatement p_stmt = conn
+					.prepareStatement("select * from team where TID >1 order by Tscore desc");
+			ResultSet p_rs = p_stmt.executeQuery();
+
+			while (p_rs.next()) {
+				Team t = new Team(p_rs.getInt("TID"), p_rs.getString("Tname"), p_rs.getInt("Tscore"));
+				teams.add(t);
+			}
+
+			conn.close();
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+		return teams;
 	}
 
 	public static ArrayList<Team> getTopTeams() {
@@ -410,26 +535,5 @@ public class MySqlController {
 			ex.printStackTrace();
 		}
 		return t;
-	}
-
-	public static void test() {
-		Connection conn = null;
-		try {
-			Class.forName(className);
-			conn = DriverManager.getConnection(dbUrl, user, pass);
-
-			PreparedStatement p_stmt = conn.prepareStatement("SELECT * FROM player");
-			ResultSet p_rs = p_stmt.executeQuery();
-
-			while (p_rs.next()) {
-				System.out.println(p_rs.getInt("PID") + "- " + p_rs.getString("Fname") + " " + p_rs.getString("Lname"));
-			}
-			
-			conn.close();
-		} catch (ClassNotFoundException ex) {
-			ex.printStackTrace();
-		} catch (SQLException ex) {
-			ex.printStackTrace();
-		}
 	}
 }

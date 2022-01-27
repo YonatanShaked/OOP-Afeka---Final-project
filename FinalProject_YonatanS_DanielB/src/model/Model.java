@@ -2,24 +2,38 @@ package model;
 
 import java.util.ArrayList;
 
+import controller.MySqlController;
+
 
 public class Model {
 	private Matrix theMatrix;
 	private Player player, mvp;
 	private ArrayList<Player> leaderboard;
 	private ArrayList<Team> leaderboardT;
+	private SingleLeague singleLeague;
+	private TeamLeague teamLeague;
 
 	public Model() {
 		player = new Player("Player");
-		//leaderboard = controller.CtrlFileHandler.loadFile();
 		leaderboard = controller.MySqlController.getTopPlayers();
 		leaderboardT = controller.MySqlController.getTopTeams();
 		mvp = controller.MySqlController.findMvp();
+		this.singleLeague = MySqlController.getSingleLeague();
+		this.teamLeague = MySqlController.getTeamLeague();
+		//System.out.println(this.singleLeague.getPlayers().get(0).getFname() + "  " + this.teamLeague.getTeams().get(0).getName());
 		update("Level 1");
 	}
 
 	public void setPlayer(Player p) {
 		player = p;
+	}
+	
+	public SingleLeague getSingleLeague() {
+		return this.singleLeague;
+	}
+	
+	public TeamLeague getTeamLeague() {
+		return this.teamLeague;
 	}
 
 	public ArrayList<Player> getLeaderboard() {
@@ -45,13 +59,13 @@ public class Model {
 	public void update(String kind) {
 		switch (kind) {
 		case "Level 1":
-			theMatrix = new Matrix(1, player, leaderboard, leaderboardT, this);
+			theMatrix = new Matrix(1, player, this);
 			break;
 		case "Level 2":
-			theMatrix = new Matrix(2, player, leaderboard, leaderboardT, this);
+			theMatrix = new Matrix(2, player, this);
 			break;
 		case "Level 3":
-			theMatrix = new Matrix(3, player, leaderboard, leaderboardT, this);
+			theMatrix = new Matrix(3, player, this);
 			break;
 		}
 	}
